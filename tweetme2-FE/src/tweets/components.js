@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {loadTweets} from './utils';
+import {loadTweets, createTweet} from './utils';
 
 export function TweetsComponent(props){
   const [newTweets, setNewTweets] = useState([])
@@ -9,10 +9,13 @@ export function TweetsComponent(props){
     e.preventDefault();
     const tweetContent = textAreaRef.current.value;
     let tempNewTweets = [...newTweets];
-    tempNewTweets.unshift({
-      content: tweetContent,
-      likes: 0,
-      id: 42423
+    createTweet(tweetContent, (response, status)=>{
+      if (status === 201){
+        tempNewTweets.unshift(response);
+      } else {
+        console.log(response);
+        alert("An error occured when creating your Tweet.")
+      }
     });
     setNewTweets(tempNewTweets);
     textAreaRef.current.value = '';
@@ -78,6 +81,7 @@ export function Tweet(props){
 export function TweetsList(props){
   const [tweetsInit, setTweetsInit] = useState([]);
   const [tweetsList, setTweetsList] = useState([]);
+  const [tweetsDidGet, setTweetsDidGet] = useState(false);
 
   const addNewTweets = () => {
     const finalList = [...props.newTweets].concat(tweetsInit);
@@ -87,15 +91,20 @@ export function TweetsList(props){
   }
 
   const tweetsLookup = () => {
-    const myCallback = (response, status) => {
-      if (status === 200){
-        setTweetsInit(response);
+    // If we haven't gotten tweets, get them
+    if (tweetsDidGet === false){
+      const myCallback = (response, status) => {
+        if (status === 200){
+          setTweetsInit(response);
+          setTweetsDidGet(true);
+        }
       }
+  
+      loadTweets(myCallback);
     }
-    loadTweets(myCallback);
   }
   useEffect(addNewTweets, [props.newTweets, tweetsInit, tweetsList]);
-  useEffect(tweetsLookup, []);
+  useEffect(tweetsLookup, [tweetsDidGet]);
   return (
     tweetsList.map((item, index) => {
       return <Tweet tweet={item} key={`${index}-{item.id}`} className="my-5 py-5 border bg-white text-dark"/>
