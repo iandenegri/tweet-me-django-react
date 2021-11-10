@@ -28,9 +28,12 @@ function lookup(method, endpoint, callback, data){
 
   xhr.responseType = responseType;
   xhr.open(method, url);
-  xhr.setRequestHeader("HTTP-X-REQUESTED-WITH", "XMLHttpRequest");
-  xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
-  xhr.setRequestHeader("X-CSRFToken", csrftoken);
+  if (csrftoken){
+    xhr.setRequestHeader("Content-Type", "application/json");
+    // xhr.setRequestHeader("HTTP-X-REQUESTED-WITH", "XMLHttpRequest");
+    xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
+    xhr.setRequestHeader("X-CSRFToken", csrftoken);
+  }
   xhr.onload = function() {
     callback(xhr.response, xhr.status);
   }
