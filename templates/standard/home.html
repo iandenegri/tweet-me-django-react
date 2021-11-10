@@ -4,25 +4,10 @@ Welcome to TweetMe
 {% endblock headtitle %}
 
 {% block content %}
-<div class="row text-center">
-    <div class="col">
-        <h1>Home Page</h1>  
-    </div>
-</div>
-
-<div class="row mb-3">
-    <div class="col-md-4 mx-auto col-10">
-        <form id="tweet-create-form" class="form" method="POST" action="/create-tweet">
-            {% csrf_token %}
-            <input type="hidden" value="/" name="next" />
-            <textarea class="form-control" name="content" placeholder="Your tweet here!"></textarea>
-            <button type="submit" class="btn btn-primary">Submit Tweet</button>
-    </div>
-</div>
 
 <div class="row">
-    <div id="tweets">
-        <p>Loading</p>
+    <noscript>You need Javascript to interact with this site.</noscript>
+    <div id="tweetme2">
     </div>    
 </div>
 
