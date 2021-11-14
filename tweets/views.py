@@ -42,12 +42,12 @@ def tweet_detail(request, tweet_id, *args, **kwargs):
 @api_view(['POST'])  # Only allow POST as the type of requests this end point takes
 @permission_classes([IsAuthenticated])
 def tweet_create_view(request, *args, **kwargs):
-    print(request.POST)
-    data = request.POST or None
+    data = request.data or None
     serializer = TweetCreateSerializer(data=data)
     if serializer.is_valid(raise_exception=True):
         serializer.save(author=request.user)
         return Response(serializer.data, status=201)
+    print("eh")
     return Response({}, status=400)
 
 

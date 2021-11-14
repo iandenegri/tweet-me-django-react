@@ -12,12 +12,12 @@ export function TweetsComponent(props){
     createTweet(tweetContent, (response, status)=>{
       if (status === 201){
         tempNewTweets.unshift(response);
+        setNewTweets(tempNewTweets);
       } else {
         console.log(response);
         alert("An error occured when creating your Tweet.")
       }
     });
-    setNewTweets(tempNewTweets);
     textAreaRef.current.value = '';
   }
   return (
