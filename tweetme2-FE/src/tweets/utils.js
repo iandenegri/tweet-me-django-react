@@ -45,12 +45,16 @@ function lookup(method, endpoint, callback, data){
 
 }
 
-export function createTweet(newTweetData, callback){
+export function apiTweetCreate(newTweetData, callback){
   let data = {content: newTweetData};
   lookup("POST", "/tweets/create/", callback, data);
 }
 
-export function loadTweets(callback){
+export function apiTweetList(callback){
   lookup("GET", "/tweets/", callback);
-  console.log("wah")
-} 
+}
+
+export function apiTweetAction(tweetID, action, callback){
+  let data = {id: tweetID, action: action}
+  lookup("POST", "/tweets/action/", callback, data);
+}

@@ -1,15 +1,18 @@
 import React, {useEffect, useState} from 'react';
-import {loadTweets, createTweet} from './utils';
+import {apiTweetCreate, apiTweetList, apiTweetAction} from './utils';
 
 export function TweetsComponent(props){
   const [newTweets, setNewTweets] = useState([])
   const textAreaRef = React.createRef();
 
+  // Code to handle creating tweet
   const handleSubmit = function(e){
     e.preventDefault();
+
     const tweetContent = textAreaRef.current.value;
     let tempNewTweets = [...newTweets];
-    createTweet(tweetContent, (response, status)=>{
+    
+    apiTweetCreate(tweetContent, (response, status)=>{
       if (status === 201){
         tempNewTweets.unshift(response);
         setNewTweets(tempNewTweets);
@@ -20,6 +23,8 @@ export function TweetsComponent(props){
     });
     textAreaRef.current.value = '';
   }
+
+  // Component code
   return (
     <div className={props.className}>
       <div className="col-12 mb-3">
@@ -34,41 +39,62 @@ export function TweetsComponent(props){
 }
 
 export function ActionBtn(props){
-    const tweet = props.tweet;
-    const [likes, setLikes] = useState(tweet.likes ? tweet.likes : 0);
-    const [justClicked, setJustClicked] = useState(false);
-    const styles = {
-        "Like": "btn btn-primary btn-sm",
-        "Unlike":"btn btn-danger btn-sm",
-        "Retweet": "btn btn-success btn-sm"
-    };
-    const className = props.className ? props.className : styles[props.action];
-    const buttonText = (props.action === "Like" ? likes.toString() + " " : "") + props.action + (props.action === "Like" ? "(s)" : "");
-    const handleClick =(event) => {
-        event.preventDefault();
-        if (props.action === "Like"){
-            if (!justClicked){
-                setLikes(likes + 1);
-                setJustClicked(true);
-            } else {
-                setLikes(likes - 1);
-                setJustClicked(false);
-            }
-        }
+  // Vars
+  const tweet = props.tweet;
+  const action = props.action;
+  const [likes, setLikes] = useState(tweet.likes ? tweet.likes : 0);
+  const styles = {
+      "Like": "btn btn-primary btn-sm",
+      "Unlike":"btn btn-danger btn-sm",
+      "Retweet": "btn btn-success btn-sm",
+      "Unretweet":"btn btn-danger btn-sm",
+  };
+  const className = props.className ? props.className : styles[props.action];
+  const buttonText = (props.action === "Like" ? likes.toString() + " " : "") + props.action + (props.action === "Like" ? "(s)" : "");
+
+  // Functions
+  const handleTweetActionEvent = (response, status) => {
+    console.log(response)
+    console.log(status)
+    if (status === 200){
+      setLikes(response.likes);
     }
-    return (
-      <button className={className} onClick={handleClick}>
-        {buttonText}
-      </button>
-    );
+  }
+
+  const handleClick =(event) => {
+    event.preventDefault();
+    console.log(tweet.id)
+    console.log(action)
+    apiTweetAction(tweet.id, action, handleTweetActionEvent);
+  }
+  return (
+    <button className={className} onClick={handleClick}>
+      {buttonText}
+    </button>
+  );
 }
-  
+
+export function ParentTweet(props){
+  const tweet = props.tweet;
+  return tweet.parent ? (
+    <div className="row">
+      <div className="col-11 mx-auto p-3 border rounded">
+        <p className="mb-0 text-muted small">Retweet:</p>
+        <Tweet className={' '} tweet={tweet.parent} />
+      </div>
+    </div>
+  ) : null
+}
+
 export function Tweet(props){
-    const {tweet} = props
+    const tweet = props.tweet
     const className = props.className ? props.className : "col-10 mx-auto col-md-6"
     return (
     <div className={className}>
-      <p>{tweet.id} - {tweet.content}</p>
+      <div>
+        <p>{tweet.id} - {tweet.content}</p>
+        <ParentTweet tweet={tweet} />
+      </div>
       <div>
         <ActionBtn tweet={tweet} action="Like" />
         <ActionBtn tweet={tweet} action="Unlike" />
@@ -93,14 +119,14 @@ export function TweetsList(props){
   const tweetsLookup = () => {
     // If we haven't gotten tweets, get them
     if (tweetsDidGet === false){
-      const myCallback = (response, status) => {
+      const handleTweetListLookup = (response, status) => {
         if (status === 200){
           setTweetsInit(response);
           setTweetsDidGet(true);
         }
       }
   
-      loadTweets(myCallback);
+      apiTweetList(handleTweetListLookup);
     }
   }
   useEffect(addNewTweets, [props.newTweets, tweetsInit, tweetsList]);

@@ -47,7 +47,6 @@ def tweet_create_view(request, *args, **kwargs):
     if serializer.is_valid(raise_exception=True):
         serializer.save(author=request.user)
         return Response(serializer.data, status=201)
-    print("eh")
     return Response({}, status=400)
 
 
@@ -70,14 +69,14 @@ def tweet_delete_view(request, tweet_id, *args, **kwargs):
 def tweet_action_view(request, *args, **kwargs):
     """
     id is required
-    Action options are: like, unlike, retweet, unretweet
+    Action options are: Like, Unlike, Retweet, Unretweet (case insensitive)
     """
     serializer = TweetActionSerializer(data=request.data)
     if serializer.is_valid(raise_exception=True):
         data = serializer.validated_data
         tweet_id = data.get("id")
         action = data.get("action")
-        content = data.get("content")
+        content = data.get("content") if data.get("content") else ""
         qs = Tweet.objects.filter(id=tweet_id)
         if not qs.exists():
             return Response({}, status=404)
