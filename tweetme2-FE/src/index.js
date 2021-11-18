@@ -7,6 +7,8 @@ import { TweetsComponent } from './tweets';
 
 let defaultElem = document.getElementById('root');
 let tweetme2Elem = document.getElementById('tweetme2');
+const e = React.createElement;
+
 if (defaultElem) {
   ReactDOM.render(
     <React.StrictMode>
@@ -16,10 +18,11 @@ if (defaultElem) {
   );  
 }
 if (tweetme2Elem){
+  const passedData = tweetme2Elem.dataset;
+  const tweetsCompElem = e(TweetsComponent, passedData);
+
   ReactDOM.render(
-    <React.StrictMode>
-      <TweetsComponent tweetme2Elem />
-    </React.StrictMode>,
+    tweetsCompElem,
     document.getElementById('tweetme2')
   );  
 }

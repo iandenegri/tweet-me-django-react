@@ -25,6 +25,12 @@ def home(request, *args, **kwargs):
 @api_view(['GET'])
 def tweet_list(request, *args, **kwargs):
     qs = Tweet.objects.all()
+    print(qs.count())
+    username = request.GET.get('username')  # Pass parameter to BE from FE
+    print(username)
+    if username != None:
+        qs = qs.filter(author__username=username)
+        print(qs.count())
     serializer = TweetSerializer(qs, many=True)
     return Response(serializer.data, status=200)
 

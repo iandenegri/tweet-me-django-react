@@ -50,8 +50,17 @@ export function apiTweetCreate(newTweetData, callback){
   lookup("POST", "/tweets/create/", callback, data);
 }
 
-export function apiTweetList(callback){
-  lookup("GET", "/tweets/", callback);
+export function apiTweetList(username, callback){
+  let endpoint = "/tweets/" 
+  if (username){
+    endpoint = `/tweets/?username=${username}`
+  }
+  lookup("GET", endpoint, callback);
+}
+
+export function apiTweetDetail(tweetId, callback){
+  let endpoint = `/tweets/${tweetId}`;
+  lookup("GET", endpoint, callback);
 }
 
 export function apiTweetAction(tweetID, action, callback){

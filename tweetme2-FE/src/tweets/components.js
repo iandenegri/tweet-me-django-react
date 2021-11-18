@@ -2,6 +2,7 @@ import React, {useEffect, useState} from 'react';
 import {apiTweetCreate, apiTweetList, apiTweetAction} from './utils';
 
 export function TweetsComponent(props){
+  const canTweet = props.canTweet === "false" ? false : true;
   const [newTweets, setNewTweets] = useState([])
   const textAreaRef = React.createRef();
 
@@ -27,13 +28,13 @@ export function TweetsComponent(props){
   // Component code
   return (
     <div className={props.className}>
-      <div className="col-12 mb-3">
+      {canTweet && <div className="col-12 mb-3">
         <form onSubmit={handleSubmit}>
           <textarea ref={textAreaRef} className="form-control" name="tweet" required={true}></textarea>
           <button type="submit" className="btn btn-primary my-3">Tweet</button>
         </form>
-      </div>
-      <TweetsList newTweets={newTweets}/>
+      </div>}
+      <TweetsList newTweets={newTweets} {...props} />
     </div>
   )
 }
@@ -121,6 +122,7 @@ export function Tweet(props){
 }
   
 export function TweetsList(props){
+  const username = props.username;
   const [tweetsInit, setTweetsInit] = useState([]);
   const [tweetsList, setTweetsList] = useState([]);
   const [tweetsDidGet, setTweetsDidGet] = useState(false);
@@ -142,11 +144,11 @@ export function TweetsList(props){
         }
       }
   
-      apiTweetList(handleTweetListLookup);
+      apiTweetList(username, handleTweetListLookup);
     }
   }
   useEffect(addNewTweets, [props.newTweets, tweetsInit, tweetsList]);
-  useEffect(tweetsLookup, [tweetsDidGet]);
+  useEffect(tweetsLookup, [tweetsDidGet, username]);
 
   const handleDidRetweet = (newTweet) => {
     const updatedTweetsInit = [...tweetsInit];
