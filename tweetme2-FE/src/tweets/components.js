@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {apiTweetCreate, apiTweetList, apiTweetAction} from './utils';
+import {apiTweetCreate, apiTweetList, apiTweetAction, apiTweetDetail} from './utils';
 
 export function TweetsComponent(props){
   const canTweet = props.canTweet === "false" ? false : true;
@@ -24,7 +24,6 @@ export function TweetsComponent(props){
     });
     textAreaRef.current.value = '';
   }
-
   // Component code
   return (
     <div className={props.className}>
@@ -39,41 +38,30 @@ export function TweetsComponent(props){
   )
 }
 
-export function ActionBtn(props){
-  // Vars
-  const tweet = props.tweet;
-  const action = props.action;
-  const didPerformAction = props.didPerformAction;
-  const likes = tweet.likes ? tweet.likes : 0;
-  const styles = {
-      "Like": "btn btn-primary btn-sm",
-      "Unlike":"btn btn-danger btn-sm",
-      "Retweet": "btn btn-success btn-sm",
-      "Unretweet":"btn btn-danger btn-sm",
-  };
-  const className = props.className ? props.className : styles[props.action];
-  const buttonText = (props.action === "Like" ? likes.toString() + " " : "") + props.action + (props.action === "Like" ? "(s)" : "");
+export function TweetDetailComponent(props){
+  const tweetId = props.tweetId;
+  const className = props.className;
+  const [didLookup, setDidLookup] = useState(false);
+  const [tweet, setTweet] = useState(null);
 
-  // Functions
-  const handleTweetActionEvent = (response, status) => {
-    console.log(response)
-    console.log(status)
-    if ((status === 200 || status === 201) && didPerformAction){
-      didPerformAction(response, status);
+  const handleBackendLookup = (response, status) => {
+    if (status === 200){
+      setTweet(response);
+    } else {
+      alert("There was an error finding the tweet.");
     }
   }
 
-  const handleClick =(event) => {
-    event.preventDefault();
-    console.log(tweet.id)
-    console.log(action)
-    apiTweetAction(tweet.id, action, handleTweetActionEvent);
+  const backendCall = () => {
+    if (didLookup === false){
+      apiTweetDetail(tweetId, handleBackendLookup);
+      setDidLookup(true);
+    }
   }
-  return (
-    <button className={className} onClick={handleClick}>
-      {buttonText}
-    </button>
-  );
+
+  useEffect(backendCall, [tweetId, didLookup, setDidLookup]);
+
+  return tweet === null ? null : <Tweet tweet={tweet} className={className} />
 }
 
 export function ParentTweet(props){
@@ -95,6 +83,15 @@ export function Tweet(props){
     const [actionTweet, setActionTweet] = useState(props.tweet ? props.tweet : null);
     const className = props.className ? props.className : "col-10 mx-auto col-md-6";
 
+    let isDetailView = false;
+    let path = window.location.pathname;
+    let idRegex = /(?<tweetid>\d+)/;
+    let match = path.match(idRegex);
+    let tweetId = match ? match.groups.tweetid : -1;
+    if (`${tweetId}` === `${tweet.id}`){
+      isDetailView = true;
+    }
+
     const handlePerformAction = (newActionTweetResponse, status) => {
       if (status === 200){
         setActionTweet(newActionTweetResponse);
@@ -103,7 +100,11 @@ export function Tweet(props){
           didRetweet(newActionTweetResponse);
         }
       }
+    }
 
+    const handleTweetDetailLink = (event) => {
+      event.preventDefault();
+      window.location.href=`/${tweet.id}`
     }
 
     return (
@@ -112,11 +113,14 @@ export function Tweet(props){
         <p>{tweet.id} - {tweet.content}</p>
         <ParentTweet tweet={tweet} />
       </div>
-      {(actionTweet && hideActions !== true) &&<div className="btn btn-group">
-        <ActionBtn tweet={actionTweet} didPerformAction={handlePerformAction} action="Like" />
-        <ActionBtn tweet={actionTweet} didPerformAction={handlePerformAction} action="Unlike" />
-        <ActionBtn tweet={actionTweet} didPerformAction={handlePerformAction} action="Retweet" />
-      </div>}
+      <div className="btn btn-group">
+        {(actionTweet && hideActions !== true) && <React.Fragment>
+          <ActionBtn tweet={actionTweet} didPerformAction={handlePerformAction} action="Like" />
+          <ActionBtn tweet={actionTweet} didPerformAction={handlePerformAction} action="Unlike" />
+          <ActionBtn tweet={actionTweet} didPerformAction={handlePerformAction} action="Retweet" />
+        </React.Fragment>}
+        {isDetailView === false && <button className="btn btn-outline-primary btn-sm"onClick={handleTweetDetailLink}>View</button>}
+      </div>
     </div>
     )
 }
@@ -165,4 +169,41 @@ export function TweetsList(props){
       return <Tweet tweet={item} key={`${index}-{item.id}`} didRetweet={handleDidRetweet} className="my-5 py-5 border bg-white text-dark"/>
     })
   )
+}
+
+export function ActionBtn(props){
+  // Vars
+  const tweet = props.tweet;
+  const action = props.action;
+  const didPerformAction = props.didPerformAction;
+  const likes = tweet.likes ? tweet.likes : 0;
+  const styles = {
+      "Like": "btn btn-primary btn-sm",
+      "Unlike":"btn btn-danger btn-sm",
+      "Retweet": "btn btn-success btn-sm",
+      "Unretweet":"btn btn-danger btn-sm",
+  };
+  const className = props.className ? props.className : styles[props.action];
+  const buttonText = (props.action === "Like" ? likes.toString() + " " : "") + props.action + (props.action === "Like" ? "(s)" : "");
+
+  // Functions
+  const handleTweetActionEvent = (response, status) => {
+    console.log(response)
+    console.log(status)
+    if ((status === 200 || status === 201) && didPerformAction){
+      didPerformAction(response, status);
+    }
+  }
+
+  const handleClick =(event) => {
+    event.preventDefault();
+    console.log(tweet.id)
+    console.log(action)
+    apiTweetAction(tweet.id, action, handleTweetActionEvent);
+  }
+  return (
+    <button className={className} onClick={handleClick}>
+      {buttonText}
+    </button>
+  );
 }
