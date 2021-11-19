@@ -23,7 +23,8 @@ from tweets import views as tweet_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', tweet_views.home),
-    path('react/', TemplateView.as_view(template_name='react.html'), name='react'),
+    path('', tweet_views.tweet_list_view),
+    path('<int:tweet_id>', tweet_views.tweet_detail_view),
+    path('profile/<str:username>', tweet_views.tweet_profile_view),
     path('api/tweets/', include('tweets.urls'), name='tweets' ),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
