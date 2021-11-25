@@ -34,14 +34,3 @@ def tweet_detail_view(request, tweet_id, *args, **kwargs):
         template_name="tweets/detail.html",
         context=context,
         status=200)
-
-def tweet_profile_view(request, username, *args, **kwargs):
-    can_tweet = 'true' if request.user == username else 'false'
-    context = {}
-    context['username'] = username
-    context['user_can_tweet'] = can_tweet
-    return render(
-        request, 
-        template_name="tweets/profile.html",
-        context=context,
-        status=200)
