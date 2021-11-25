@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     # Local
     'tweets',
     'accounts',
+    'profiles',
 ]
 
 MIDDLEWARE = [
