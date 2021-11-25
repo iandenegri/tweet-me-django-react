@@ -28,13 +28,16 @@ function lookup(method, endpoint, callback, data){
 
   xhr.responseType = responseType;
   xhr.open(method, url);
+  xhr.setRequestHeader("Content-Type", "application/json");
+  xhr.setRequestHeader("Accept", "application/json");
   if (csrftoken){
-    xhr.setRequestHeader("Content-Type", "application/json");
-    // xhr.setRequestHeader("HTTP-X-REQUESTED-WITH", "XMLHttpRequest");
     xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
     xhr.setRequestHeader("X-CSRFToken", csrftoken);
   }
   xhr.onload = function() {
+    if (xhr.status === 403 | xhr.status === 415 | xhr.status === 400){
+      window.location.href = "/login/?showLoginRequired=true";
+    }
     callback(xhr.response, xhr.status);
   }
   xhr.onerror = function(e){

@@ -1,62 +1,18 @@
 # Django
-from django.shortcuts import render, redirect
-from django.conf import settings
 
 # DRF
 from rest_framework.response import Response
-from rest_framework.decorators import api_view, permission_classes, authentication_classes
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 
 # Local
-from .serializers import TweetSerializer, TweetActionSerializer, TweetCreateSerializer
-from .models import Tweet
+from tweets.serializers import TweetSerializer, TweetActionSerializer, TweetCreateSerializer
+from tweets.models import Tweet
 
-
-# Create your views here.
-
-def home(request, *args, **kwargs):
-    context = {}
-    context['tweets'] = Tweet.objects.all()
-    return render(
-        request, 
-        template_name="standard/home.html",
-        context=context,
-        status=200)
-
-def tweet_list_view(request, *args, **kwargs):
-    context = {}
-    return render(
-        request, 
-        template_name="tweets/list.html",
-        context=context,
-        status=200)
-
-def tweet_detail_view(request, tweet_id, *args, **kwargs):
-    context = {}
-    context['tweet_id'] =tweet_id
-    return render(
-        request, 
-        template_name="tweets/detail.html",
-        context=context,
-        status=200)
-
-def tweet_profile_view(request, username, *args, **kwargs):
-    can_tweet = 'true' if request.user == username else 'false'
-    context = {}
-    context['username'] = username
-    context['user_can_tweet'] = can_tweet
-    return render(
-        request, 
-        template_name="tweets/profile.html",
-        context=context,
-        status=200)
-# API
 @api_view(['GET'])
 def tweet_list(request, *args, **kwargs):
     qs = Tweet.objects.all()
-    print(qs.count())
     username = request.GET.get('username')  # Pass parameter to BE from FE
-    print(username)
     if username != None:
         qs = qs.filter(author__username=username)
         print(qs.count())
