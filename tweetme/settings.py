@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'corsheaders',
     # Local
     'tweets',
+    'accounts',
 ]
 
 MIDDLEWARE = [
@@ -144,7 +145,7 @@ REST_FRAMEWORK = {
     ],
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.SessionAuthentication',
-        'tweets.authentication.DevelopmentAuthentication',
+        'tweets.authentication.DevelopmentAuthentication', # TODO: Figure out how to remove this and have react work...
     ]
 }
 
