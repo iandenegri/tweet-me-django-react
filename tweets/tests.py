@@ -33,6 +33,10 @@ class TweetTestCase(TestCase):
         self.assertEqual(tweet.author, self.user0)
         self.assertEqual(tweet.id, 4)
 
+    def test_tweet_related_name(self):
+        user = self.user0
+        self.assertEqual(user.tweets.count(), 2)
+
     def test_tweet_list(self):
         client = self.get_client()
         response = client.get("/api/tweets/")
@@ -54,6 +58,10 @@ class TweetTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json().get("likes"), 1)
         self.assertEqual(tweet.likes.count(), 1)
+        user0_like_instances = self.user0.tweetlike_set.count()
+        self.assertEqual(user0_like_instances, 2)  # We liked a tweet initially in setup.
+        user0_related_likes = self.user0.tweet_user.count()
+        self.assertEqual(user0_related_likes, user0_like_instances) # Make sure that these match as one is the related name of the other
 
     def test_tweet_action_unlike(self):
         client = self.get_client()
