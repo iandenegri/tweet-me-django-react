@@ -1,5 +1,5 @@
 # Django
-
+from django.db.models import Q
 # DRF
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
@@ -23,13 +23,13 @@ def tweet_list(request, *args, **kwargs):
 @permission_classes([IsAuthenticated])
 def tweet_feed_list(request, *args, **kwargs):
     my_user = request.user
-    profiles = my_user.following.all()
-    if profiles.exists():
-        followed_user_ids = [x.user.id for x in profiles]
-    else:
-        followed_user_ids = []
-    followed_user_ids.append(my_user.id)
-    qs = Tweet.objects.filter(author__id__in=followed_user_ids).order_by("-timestamp")
+    following_users = my_user.following.exists()
+    followed_user_ids = []
+    if following_users:
+        followed_user_ids = my_user.following.values_list("user__id", flat=True) # [x.user.id for x in profiles]
+    qs = Tweet.objects.filter(
+        Q(author__id__in=followed_user_ids) | Q(author=my_user)
+        ).distinct().order_by("-timestamp")
     serializer = TweetSerializer(qs, many=True)
     return Response(serializer.data, status=200)
 
