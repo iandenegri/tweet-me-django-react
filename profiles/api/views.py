@@ -18,6 +18,9 @@ User = get_user_model()
 def user_follow_view(request, username, *args, **kwargs):
     current_user = request.user
     user_to_follow = User.objects.filter(username=username).first()
+    if current_user.username == username:
+        my_followers = User.objects.filter(username=username).first().profile.followers.all()
+        return Response({"message": "You can't follow yourself...", "count": my_followers.count()}, status=400)
     if not user_to_follow:
         return Response({"message": "The user does not exist"}, status=404)
     user_to_follow_profile = user_to_follow.profile
@@ -34,4 +37,4 @@ def user_follow_view(request, username, *args, **kwargs):
         user_to_follow_profile.followers.remove(current_user)
     else:
         return Response({"message": "Please pass a valid action. (follow or unfollow)"}, status=400)
-    return Response({"message":f"{current_user} has successfully {action}ed {user_to_follow}."}, status=200)
+    return Response({"message":f"{current_user} has successfully {action}ed {user_to_follow}.", "count": user_to_follow_profile.followers.count()}, status=200)
