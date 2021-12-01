@@ -24,8 +24,11 @@ def tweet_list(request, *args, **kwargs):
 def tweet_feed_list(request, *args, **kwargs):
     my_user = request.user
     profiles = my_user.following.all()
-    followed_user_ids = [x.user.id for x in profiles]
-    followed_user_ids = followed_user_ids.append(my_user.id)
+    if profiles.exists():
+        followed_user_ids = [x.user.id for x in profiles]
+    else:
+        followed_user_ids = []
+    followed_user_ids.append(my_user.id)
     qs = Tweet.objects.filter(author__id__in=followed_user_ids).order_by("-timestamp")
     serializer = TweetSerializer(qs, many=True)
     return Response(serializer.data, status=200)
