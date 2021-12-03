@@ -130,6 +130,8 @@ export function TweetsList(props){
   const [tweetsInit, setTweetsInit] = useState([]);
   const [tweetsList, setTweetsList] = useState([]);
   const [tweetsDidGet, setTweetsDidGet] = useState(false);
+  const [nextUrl, setNextUrl] = useState(null);
+  const [previousUrl, setPreviousUrl] = useState(null);
 
   const addNewTweets = () => {
     const finalList = [...props.newTweets].concat(tweetsInit);
@@ -143,7 +145,9 @@ export function TweetsList(props){
     if (tweetsDidGet === false){
       const handleTweetListLookup = (response, status) => {
         if (status === 200){
-          setTweetsInit(response);
+          setNextUrl(response.next);
+          setPreviousUrl(response.previous);
+          setTweetsInit(response.results);
           setTweetsDidGet(true);
         }
       }
@@ -164,10 +168,12 @@ export function TweetsList(props){
     setTweetsList(updatedTweetsList);
   }
 
-  return (
+  return (<React.Fragment>{
     tweetsList.map((item, index) => {
       return <Tweet tweet={item} key={`${index}-{item.id}`} didRetweet={handleDidRetweet} className="my-5 py-5 border bg-white text-dark"/>
-    })
+    })}
+    { nextUrl !== null && <button className='btn btn-outline-primary'>Load Next</button>}
+    </React.Fragment>
   )
 }
 
