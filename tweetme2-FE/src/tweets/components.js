@@ -66,22 +66,17 @@ export function TweetDetailComponent(props){
 
 export function ParentTweet(props){
   const tweet = props.tweet;
-  return tweet.parent ? (
-    <div className="row">
-      <div className="col-11 mx-auto p-3 border rounded">
-        <p className="mb-0 text-muted small">Retweet:</p>
-        <Tweet className={' '} tweet={tweet.parent} hideActions />
-      </div>
-    </div>
-  ) : null
+  return tweet.parent ? <Tweet className={' '} tweet={tweet.parent} hideActions isRetweet /> : null;
 }
 
 export function Tweet(props){
     const tweet = props.tweet;
     const didRetweet = props.didRetweet;
     const hideActions = props.hideActions;
+    const isRetweet = props.isRetweet;
     const [actionTweet, setActionTweet] = useState(props.tweet ? props.tweet : null);
-    const className = props.className ? props.className : "col-10 mx-auto col-md-6";
+    let className = props.className ? props.className : "col-10 mx-auto col-md-6";
+    className = isRetweet === true ? `${className} border rounded p-2` : className;
 
     let isDetailView = false;
     let path = window.location.pathname;
@@ -109,17 +104,26 @@ export function Tweet(props){
 
     return (
     <div className={className}>
-      <div>
-        <p>{tweet.id} - {tweet.content}</p>
-        <ParentTweet tweet={tweet} />
-      </div>
-      <div className="btn btn-group">
-        {(actionTweet && hideActions !== true) && <React.Fragment>
-          <ActionBtn tweet={actionTweet} didPerformAction={handlePerformAction} action="Like" />
-          <ActionBtn tweet={actionTweet} didPerformAction={handlePerformAction} action="Unlike" />
-          <ActionBtn tweet={actionTweet} didPerformAction={handlePerformAction} action="Retweet" />
-        </React.Fragment>}
-        {isDetailView === false && <button className="btn btn-outline-primary btn-sm"onClick={handleTweetDetailLink}>View</button>}
+      {isRetweet === true && <div className="mb-2"><span className="small text-muted">Retweet:</span></div>}
+      <div className="d-flex">
+        <div className="">
+          <span className="mx-1 my-3 rounded-circle px-3 py-2 bg-dark text-white">{tweet.author.first_name[0]}</span>
+        </div>
+        <div className="col-11">
+          <div>
+            <p>{tweet.author.first_name} {tweet.author.last_name} @{tweet.author.username}</p>
+            <p>{tweet.content}</p>
+            <ParentTweet tweet={tweet} />
+          </div>
+          <div className="btn btn-group px-0">
+            {(actionTweet && hideActions !== true) && <React.Fragment>
+              <ActionBtn tweet={actionTweet} didPerformAction={handlePerformAction} action="Like" />
+              <ActionBtn tweet={actionTweet} didPerformAction={handlePerformAction} action="Unlike" />
+              <ActionBtn tweet={actionTweet} didPerformAction={handlePerformAction} action="Retweet" />
+            </React.Fragment>}
+            {isDetailView === false && <button className="btn btn-outline-primary btn-sm"onClick={handleTweetDetailLink}>View</button>}
+          </div>
+        </div>
       </div>
     </div>
     )
