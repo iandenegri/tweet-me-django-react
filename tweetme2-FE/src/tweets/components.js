@@ -66,7 +66,8 @@ export function TweetDetailComponent(props){
 
 export function ParentTweet(props){
   const tweet = props.tweet;
-  return tweet.parent ? <Tweet className={' '} tweet={tweet.parent} hideActions isRetweet /> : null;
+  const retweeter = props.retweeter;
+  return tweet.parent ? <Tweet className={' '} tweet={tweet.parent} retweeter={retweeter} hideActions isRetweet /> : null;
 }
 
 export function Tweet(props){
@@ -74,6 +75,7 @@ export function Tweet(props){
     const didRetweet = props.didRetweet;
     const hideActions = props.hideActions;
     const isRetweet = props.isRetweet;
+    const retweeter = props.retweeter;
     const [actionTweet, setActionTweet] = useState(props.tweet ? props.tweet : null);
     let className = props.className ? props.className : "col-10 mx-auto col-md-6";
     className = isRetweet === true ? `${className} border rounded p-2` : className;
@@ -104,7 +106,7 @@ export function Tweet(props){
 
     return (
     <div className={className}>
-      {isRetweet === true && <div className="mb-2"><span className="small text-muted">Retweet:</span></div>}
+      {isRetweet === true && <div className="mb-2"><span className="small text-muted">Retweet via: @{retweeter.username}</span></div>}
       <div className="d-flex">
         <div className="">
           <span className="mx-1 my-3 rounded-circle px-3 py-2 bg-dark text-white">{tweet.author.first_name[0]}</span>
@@ -113,7 +115,7 @@ export function Tweet(props){
           <div>
             <p>{tweet.author.first_name} {tweet.author.last_name} @{tweet.author.username}</p>
             <p>{tweet.content}</p>
-            <ParentTweet tweet={tweet} />
+            <ParentTweet tweet={tweet} retweeter={tweet.author}/>
           </div>
           <div className="btn btn-group px-0">
             {(actionTweet && hideActions !== true) && <React.Fragment>
