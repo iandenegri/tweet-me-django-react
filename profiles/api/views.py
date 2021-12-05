@@ -46,7 +46,7 @@ def profile_detail_api_view(request, username, *args, **kwargs):
     if not qs.exists():
         return Response({"message": f"A user with username: {username} does not exist"}, status=404)
     profile = qs.first()
-    prof_obj = PublicProfileSerializer(instance=profile)
+    prof_obj = PublicProfileSerializer(instance=profile, context={'request': request})
     return Response(
         prof_obj.data,
         status=200)
