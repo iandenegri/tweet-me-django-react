@@ -79,6 +79,11 @@ export function apiTweetDetail(tweetId, callback){
   lookup("GET", endpoint, callback);
 }
 
+export function apiProfileDetail(username, callback){
+  let endpoint = `/profile/${username}`;
+  lookup("GET", endpoint, callback);
+}
+
 export function apiTweetAction(tweetID, action, callback){
   let data = {id: tweetID, action: action}
   lookup("POST", "/tweets/action/", callback, data);

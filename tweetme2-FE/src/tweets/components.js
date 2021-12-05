@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {apiTweetCreate, apiTweetList, apiTweetAction, apiTweetDetail, apiTweetFeed} from './utils';
+import {apiTweetCreate, apiTweetList, apiTweetAction, apiTweetDetail, apiTweetFeed, apiProfileDetail} from './utils';
 
 export function TweetsComponent(props){
   const canTweet = props.canTweet === "false" ? false : true;
@@ -207,6 +207,32 @@ export function AuthorNameDisplay(props){
     </React.Fragment>
   )
 }
+
+export function ProfileBadgeComponent(props){
+  const username = props.username;
+
+  const [didLookup, setDidLookup] = useState(false);
+  const [profile, setProfile] = useState(null);
+  // lookup
+  const handleBackendLookup = (response, status) => {
+    if (status === 200){
+      setProfile(response);
+    } 
+  }
+
+  const backendCall = () => {
+    if (didLookup === false){
+      apiProfileDetail(username, handleBackendLookup);
+      setDidLookup(true);
+    }
+  }
+
+  useEffect(backendCall, [username, didLookup, setDidLookup]);
+
+  // return
+  return didLookup === false ? "Loading..." : profile ? <span>{profile.first_name}</span> : null;
+}
+
 
 export function Tweet(props){
     const tweet = props.tweet;

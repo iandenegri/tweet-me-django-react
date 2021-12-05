@@ -3,12 +3,13 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
-import { TweetsComponent, TweetDetailComponent, FeedComponent } from './tweets';
+import { TweetsComponent, TweetDetailComponent, FeedComponent, ProfileBadgeComponent } from './tweets';
 
 let defaultElem = document.getElementById('root');
 let tweetme2Elem = document.getElementById('tweetme2');
 let tweetFeedElem = document.getElementById('tweetme2-feed');
 let tweetDetailElem = document.querySelectorAll('.tweetme2-detail');
+let profileBadgeElem = document.querySelectorAll('.tweetme2-profile-badge')
 const e = React.createElement;
 
 if (defaultElem) {
@@ -44,6 +45,15 @@ tweetDetailElem.forEach(container=> {
   const tweetDetailCompElem = e(TweetDetailComponent, passedData);
   ReactDOM.render(
     tweetDetailCompElem,
+    container
+  );
+})
+
+profileBadgeElem.forEach(container=> {
+  const passedData = container.dataset;
+  const profileBadgeCompElem = e(ProfileBadgeComponent, passedData);
+  ReactDOM.render(
+    profileBadgeCompElem,
     container
   );
 })

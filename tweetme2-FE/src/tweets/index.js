@@ -1,4 +1,4 @@
-import {ActionBtn, Tweet, TweetsList, TweetsComponent, TweetDetailComponent, TweetFeedList, FeedComponent } from './components.js'
+import {ActionBtn, Tweet, TweetsList, TweetsComponent, TweetDetailComponent, TweetFeedList, FeedComponent, ProfileBadgeComponent } from './components.js'
 
 export {
     Tweet,
@@ -7,5 +7,6 @@ export {
     TweetDetailComponent,
     ActionBtn,
     TweetFeedList,
-    FeedComponent
+    FeedComponent,
+    ProfileBadgeComponent
 }
