@@ -9,6 +9,7 @@ from rest_framework.permissions import IsAuthenticated
 # Local
 from tweets.serializers import TweetSerializer, TweetActionSerializer, TweetCreateSerializer
 from profiles.models import Profile
+from profiles.serializers import PublicProfileSerializer
 
 User = get_user_model()
 
@@ -38,3 +39,14 @@ def user_follow_view(request, username, *args, **kwargs):
     else:
         return Response({"message": "Please pass a valid action. (follow or unfollow)"}, status=400)
     return Response({"message":f"{current_user} has successfully {action}ed {user_to_follow}.", "count": user_to_follow_profile.followers.count()}, status=200)
+
+@api_view(['GET'])
+def profile_detail_api_view(request, username, *args, **kwargs):
+    qs = Profile.objects.filter(user__username=username)
+    if not qs.exists():
+        return Response({"message": f"A user with username: {username} does not exist"}, status=404)
+    profile = qs.first()
+    prof_obj = PublicProfileSerializer(instance=profile)
+    return Response(
+        prof_obj.data,
+        status=200)
