@@ -70,6 +70,38 @@ export function ParentTweet(props){
   return tweet.parent ? <Tweet className={' '} tweet={tweet.parent} retweeter={retweeter} hideActions isRetweet /> : null;
 }
 
+export function AuthorPicture(props){
+  const author = props.author;
+  return (
+    <AuthorLink username={author.username}><span className="mx-1 my-3 rounded-circle px-3 py-2 bg-dark text-white">{author.first_name[0]}</span></AuthorLink>
+  )
+}
+
+export function AuthorLink(props){
+  const username = props.username;
+  const handleAuthorLink = (event) => {
+    window.location.href = `/profile/${username}`
+  }
+
+  return (
+    <span className='pointer' onClick={handleAuthorLink}>
+    {props.children}
+    </span>
+  )
+}
+
+export function AuthorNameDisplay(props){
+  const author = props.author;
+  const includeFullName = props.includeFullName;
+  const nameDisplay = includeFullName === true ? `${author.first_name} ${author.last_name}` : null
+
+  return (
+    <React.Fragment>{nameDisplay}{" "}
+    <AuthorLink username={author.username}>@{author.username}</AuthorLink>
+    </React.Fragment>
+  )
+}
+
 export function Tweet(props){
     const tweet = props.tweet;
     const didRetweet = props.didRetweet;
@@ -106,14 +138,14 @@ export function Tweet(props){
 
     return (
     <div className={className}>
-      {isRetweet === true && <div className="mb-2"><span className="small text-muted">Retweet via: @{retweeter.username}</span></div>}
+      {isRetweet === true && <div className="mb-2"><span className="small text-muted">Retweet via: <AuthorNameDisplay author={retweeter} includeFullName={false} /></span></div>}
       <div className="d-flex">
         <div className="">
-          <span className="mx-1 my-3 rounded-circle px-3 py-2 bg-dark text-white">{tweet.author.first_name[0]}</span>
+          <AuthorPicture author={tweet.author} />
         </div>
         <div className="col-11">
           <div>
-            <p>{tweet.author.first_name} {tweet.author.last_name} @{tweet.author.username}</p>
+            <AuthorNameDisplay author={tweet.author} includeFullName={true} />
             <p>{tweet.content}</p>
             <ParentTweet tweet={tweet} retweeter={tweet.author}/>
           </div>
