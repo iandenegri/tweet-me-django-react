@@ -199,13 +199,24 @@ export function AuthorLink(props){
 export function AuthorNameDisplay(props){
   const author = props.author;
   const includeFullName = props.includeFullName;
+  const hideLink = props.hideLink;
   const nameDisplay = includeFullName === true ? `${author.first_name} ${author.last_name}` : null
 
   return (
     <React.Fragment>{nameDisplay}{" "}
-    <AuthorLink username={author.username}>@{author.username}</AuthorLink>
+    {hideLink === true ? `@${author.username}` : <AuthorLink username={author.username}>@{author.username}</AuthorLink>}
     </React.Fragment>
   )
+}
+
+export function ProfileBadge(props){
+  const user = props.user;
+  console.log(user);
+  return user ? <div>
+    <AuthorPicture author={user} />
+    <p><AuthorNameDisplay author={user} includeFullName={true} hideLink={true} /></p>
+    <button className="btn btn-primary">{user.is_following ? "Unfollow?" : "Follow"}</button>
+  </div> : null
 }
 
 export function ProfileBadgeComponent(props){
@@ -230,7 +241,7 @@ export function ProfileBadgeComponent(props){
   useEffect(backendCall, [username, didLookup, setDidLookup]);
 
   // return
-  return didLookup === false ? "Loading..." : profile ? <span>{profile.first_name}</span> : null;
+  return didLookup === false ? "Loading..." : profile ? <ProfileBadge user={profile} /> : null;
 }
 
 
