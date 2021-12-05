@@ -3,10 +3,11 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
-import { TweetsComponent, TweetDetailComponent } from './tweets';
+import { TweetsComponent, TweetDetailComponent, FeedComponent } from './tweets';
 
 let defaultElem = document.getElementById('root');
 let tweetme2Elem = document.getElementById('tweetme2');
+let tweetFeedElem = document.getElementById('tweetme2-feed');
 let tweetDetailElem = document.querySelectorAll('.tweetme2-detail');
 const e = React.createElement;
 
@@ -25,6 +26,16 @@ if (tweetme2Elem){
   ReactDOM.render(
     tweetsCompElem,
     tweetme2Elem
+  );  
+}
+
+if (tweetFeedElem){
+  const passedData = tweetFeedElem.dataset;
+  const FeedCompElem = e(FeedComponent, passedData);
+
+  ReactDOM.render(
+    FeedCompElem,
+    tweetFeedElem
   );  
 }
 

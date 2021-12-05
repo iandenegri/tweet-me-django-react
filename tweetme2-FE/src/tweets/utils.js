@@ -36,7 +36,9 @@ function lookup(method, endpoint, callback, data){
   }
   xhr.onload = function() {
     if (xhr.status === 403 | xhr.status === 415 | xhr.status === 400){
-      window.location.href = "/login/?showLoginRequired=true";
+      if (window.location.href.indexOf("login") === -1){
+        window.location.href = "/login/?showLoginRequired=true";
+      }
     }
     callback(xhr.response, xhr.status);
   }
@@ -58,6 +60,14 @@ export function apiTweetList(username, callback, nextUrl){
   if (username){
     endpoint = `/tweets/?username=${username}`
   }
+  if (nextUrl !== null && nextUrl !== undefined){
+    endpoint = nextUrl.replace("http://localhost:8000/api", "");
+  }
+  lookup("GET", endpoint, callback);
+}
+
+export function apiTweetFeed(callback, nextUrl){
+  let endpoint = "/tweets/feed/"
   if (nextUrl !== null && nextUrl !== undefined){
     endpoint = nextUrl.replace("http://localhost:8000/api", "");
   }

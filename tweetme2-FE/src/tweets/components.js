@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {apiTweetCreate, apiTweetList, apiTweetAction, apiTweetDetail} from './utils';
+import {apiTweetCreate, apiTweetList, apiTweetAction, apiTweetDetail, apiTweetFeed} from './utils';
 
 export function TweetsComponent(props){
   const canTweet = props.canTweet === "false" ? false : true;
@@ -35,6 +35,112 @@ export function TweetsComponent(props){
       </div>}
       <TweetsList newTweets={newTweets} {...props} />
     </div>
+  )
+}
+
+export function FeedComponent(props){
+  const canTweet = props.canTweet === "false" ? false : true;
+  const [newTweets, setNewTweets] = useState([])
+  const textAreaRef = React.createRef();
+
+  // Code to handle creating tweet
+  const handleSubmit = function(e){
+    e.preventDefault();
+
+    const tweetContent = textAreaRef.current.value;
+    let tempNewTweets = [...newTweets];
+    
+    apiTweetCreate(tweetContent, (response, status)=>{
+      if (status === 201){
+        tempNewTweets.unshift(response);
+        setNewTweets(tempNewTweets);
+      } else {
+        console.log(response);
+        alert("An error occured when creating your Tweet.")
+      }
+    });
+    textAreaRef.current.value = '';
+  }
+  // Component code
+  return (
+    <div className={props.className}>
+      {canTweet && <div className="col-12 mb-3">
+        <form onSubmit={handleSubmit}>
+          <textarea ref={textAreaRef} className="form-control" name="tweet" required={true}></textarea>
+          <button type="submit" className="btn btn-primary my-3">Tweet</button>
+        </form>
+      </div>}
+      <TweetFeedList newTweets={newTweets} {...props} />
+    </div>
+  )
+}
+
+export function TweetFeedList(props){
+  const username = props.username;
+  const [tweetsInit, setTweetsInit] = useState([]);
+  const [tweetsList, setTweetsList] = useState([]);
+  const [tweetsDidGet, setTweetsDidGet] = useState(false);
+  const [nextUrl, setNextUrl] = useState(null);
+
+  const addNewTweets = () => {
+    const finalList = [...props.newTweets].concat(tweetsInit);
+    if (finalList.length !== tweetsList.length){
+      setTweetsList(finalList);
+    }
+  }
+
+  const tweetsLookup = () => {
+    // If we haven't gotten tweets, get them
+    if (tweetsDidGet === false){
+      const handleTweetListLookup = (response, status) => {
+        if (status === 200){
+          setNextUrl(response.next);
+          setTweetsInit(response.results);
+          setTweetsDidGet(true);
+        } else {
+          alert("there was an error!");
+        }
+      }
+  
+      apiTweetFeed(handleTweetListLookup);
+    }
+  }
+  useEffect(addNewTweets, [props.newTweets, tweetsInit, tweetsList]);
+  useEffect(tweetsLookup, [tweetsDidGet, username]);
+
+  const handleDidRetweet = (newTweet) => {
+    const updatedTweetsInit = [...tweetsInit];
+    updatedTweetsInit.unshift(newTweet);
+    setTweetsInit(updatedTweetsInit);
+
+    const updatedTweetsList = [...tweetsList];
+    updatedTweetsList.unshift(newTweet);
+    setTweetsList(updatedTweetsList);
+  }
+
+  const handleLoadNext = (event) => {
+    event.preventDefault();
+    if (nextUrl !== null){
+      const handleLoadNextResponse = (response, status)=>{
+        if (status === 200){
+          const newTweets = [...tweetsList].concat(response.results)
+          setNextUrl(response.next);
+          setTweetsInit(newTweets);
+          setTweetsList(newTweets);
+        } else {
+          alert("there was an error!");
+        }
+      }
+      apiTweetFeed(handleLoadNextResponse, nextUrl)
+    }
+  }
+
+  return (<React.Fragment>{
+    tweetsList.map((item, index) => {
+      return <Tweet tweet={item} key={`${index}-{item.id}`} didRetweet={handleDidRetweet} className="my-5 py-5 border bg-white text-dark"/>
+    })}
+    { nextUrl !== null && <button className='btn btn-outline-primary' onClick={handleLoadNext}>Load Next</button>}
+    </React.Fragment>
   )
 }
 
