@@ -14,7 +14,7 @@ def home(request, *args, **kwargs):
     context['tweets'] = Tweet.objects.all()
     return render(
         request, 
-        template_name="standard/home.html",
+        template_name="standard/feed.html",
         context=context,
         status=200)
 

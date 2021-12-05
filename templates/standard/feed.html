@@ -8,7 +8,11 @@ Welcome to TweetMe
 <div class="row">
     <h2 class="col-12 mx-auto text-center">TWEEEEEEEET ME HOOOOOME</h2>
     <noscript>You need Javascript to interact with this site.</noscript>
-    <div id="tweetme2" data-username="ian">
+    {% if request.user.is_authenticated%}
+        <div id="tweetme2-feed" data-username="{{request.user}}">
+    {% else %}
+        <div id="tweetme2-feed">
+    {% endif %}
     </div>
 </div>
 
