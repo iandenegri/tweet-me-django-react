@@ -1,4 +1,5 @@
 import React, {useEffect, useState} from 'react';
+import numeral from 'numeral';
 import {apiTweetCreate, apiTweetList, apiTweetAction, apiTweetDetail, apiTweetFeed, apiProfileDetail, apiProfileFollow} from './utils';
 
 export function TweetsComponent(props){
@@ -224,6 +225,10 @@ export function ProfileBadge(props){
   return user ? <div>
     <AuthorPicture author={user} />
     <p><AuthorNameDisplay author={user} includeFullName={true} hideLink={true} /></p>
+    <p>Follower(s): {numeral(user.follower_count).format("0a")}</p>
+    <p>Following: {numeral(user.following_count).format("0a")}</p>
+    <p>{user.bio}</p>
+    <p>{user.location}</p>
     <button className="btn btn-primary" onClick={handleToggleFollow} >{currentAction}</button>
   </div> : null
 }
