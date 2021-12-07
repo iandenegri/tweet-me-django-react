@@ -31,14 +31,15 @@ def user_follow_view(request, username, *args, **kwargs):
         data = request.data
     except Exception as e:
         return Response({"message": e}, status=400)
-    action = data["action"].lower()
+    action = data["action"].lower() if data["action"] else ""
     if action == "follow":
         user_to_follow_profile.followers.add(current_user)
     elif action == "unfollow":
         user_to_follow_profile.followers.remove(current_user)
     else:
         return Response({"message": "Please pass a valid action. (follow or unfollow)"}, status=400)
-    return Response({"message":f"{current_user} has successfully {action}ed {user_to_follow}.", "count": user_to_follow_profile.followers.count()}, status=200)
+    prof_obj = PublicProfileSerializer(instance=user_to_follow_profile, context={'request': request})
+    return Response({"message":f"{current_user} has successfully {action}ed {user_to_follow}.", "data": prof_obj.data}, status=200)
 
 @api_view(['GET'])
 def profile_detail_api_view(request, username, *args, **kwargs):

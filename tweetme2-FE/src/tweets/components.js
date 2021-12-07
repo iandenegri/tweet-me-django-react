@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {apiTweetCreate, apiTweetList, apiTweetAction, apiTweetDetail, apiTweetFeed, apiProfileDetail} from './utils';
+import {apiTweetCreate, apiTweetList, apiTweetAction, apiTweetDetail, apiTweetFeed, apiProfileDetail, apiProfileFollow} from './utils';
 
 export function TweetsComponent(props){
   const canTweet = props.canTweet === "false" ? false : true;
@@ -211,11 +211,20 @@ export function AuthorNameDisplay(props){
 
 export function ProfileBadge(props){
   const user = props.user;
-  console.log(user);
+  const didFollowToggle = props.didFollowToggle;
+  const profileLoading = props.profileLoading;
+  let currentAction = (user && user.is_following) ? "Unfollow" : "Follow";
+  currentAction = profileLoading ? "Loading..." : currentAction;
+  const handleToggleFollow = (event) => {
+    event.preventDefault();
+    if (didFollowToggle && !profileLoading){
+      didFollowToggle(currentAction);
+    }
+  }
   return user ? <div>
     <AuthorPicture author={user} />
     <p><AuthorNameDisplay author={user} includeFullName={true} hideLink={true} /></p>
-    <button className="btn btn-primary">{user.is_following ? "Unfollow?" : "Follow"}</button>
+    <button className="btn btn-primary" onClick={handleToggleFollow} >{currentAction}</button>
   </div> : null
 }
 
@@ -224,6 +233,7 @@ export function ProfileBadgeComponent(props){
 
   const [didLookup, setDidLookup] = useState(false);
   const [profile, setProfile] = useState(null);
+  const [profileLoading, setProfileLoading] = useState(false);
   // lookup
   const handleBackendLookup = (response, status) => {
     if (status === 200){
@@ -237,11 +247,20 @@ export function ProfileBadgeComponent(props){
       setDidLookup(true);
     }
   }
-
   useEffect(backendCall, [username, didLookup, setDidLookup]);
 
+  const handleNewFollow = (actionVerb) => {
+    apiProfileFollow(username, actionVerb, (response, status) => {
+      if (status === 200){
+        setProfile(response["data"]);
+      }
+      setProfileLoading(false);
+    });
+    setProfileLoading(true);
+  }
+
   // return
-  return didLookup === false ? "Loading..." : profile ? <ProfileBadge user={profile} /> : null;
+  return didLookup === false ? "Loading..." : profile ? <ProfileBadge user={profile} didFollowToggle={handleNewFollow} profileLoading={profileLoading} /> : null;
 }
 
 
@@ -392,8 +411,6 @@ export function ActionBtn(props){
 
   // Functions
   const handleTweetActionEvent = (response, status) => {
-    console.log(response)
-    console.log(status)
     if ((status === 200 || status === 201) && didPerformAction){
       didPerformAction(response, status);
     }
@@ -401,8 +418,6 @@ export function ActionBtn(props){
 
   const handleClick =(event) => {
     event.preventDefault();
-    console.log(tweet.id)
-    console.log(action)
     apiTweetAction(tweet.id, action, handleTweetActionEvent);
   }
   return (
