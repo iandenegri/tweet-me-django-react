@@ -24,11 +24,11 @@ from accounts import views as account_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', tweet_views.home),
+    path('', tweet_views.home, name="home"),
     path('community', tweet_views.tweet_list_view),
-    path('login/', account_views.login_view),
-    path('logout/', account_views.logout_view),
-    path('register/', account_views.registration_view),
+    path('login/', account_views.login_view, name="login"),
+    path('logout/', account_views.logout_view, name="logout"),
+    path('register/', account_views.registration_view, name="register"),
     path('<int:tweet_id>', tweet_views.tweet_detail_view),
     path('api/tweets/', include('tweets.api.urls'), name='tweets_api' ),
     path('profile/', include('profiles.urls'), name='profiles'),
